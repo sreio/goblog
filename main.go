@@ -35,7 +35,17 @@ func articlesIndexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func articlesStoreHandler(w http.ResponseWriter, r *http.Request) {
-    fmt.Fprint(w, "创建新的文章")
+    err := r.ParseForm()
+    if err != nil {
+        fmt.Fprint(w, "创建新的文章")
+        return
+    }
+
+    title := r.PostForm.Get("title")
+
+    fmt.Fprintf(w, "POST PostForm: %v <br>", r.PostForm)
+    fmt.Fprintf(w, "POST Form: %v <br>", r.Form)
+    fmt.Fprintf(w, "title 的值为: %v", title)
 }
 
 func articlesAddHandler(w http.ResponseWriter, r *http.Request) {
