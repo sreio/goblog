@@ -103,7 +103,28 @@ func articlesShowHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func articlesIndexHandler(w http.ResponseWriter, r *http.Request) {
-    fmt.Fprint(w, "访问文章列表")
+    // fmt.Fprint(w, "访问文章列表")
+    rows, err := db.Query("SELECT * from articles")
+    checkError(err)
+    defer rows.Close()
+
+    var articles []Article
+
+    // 遍历数据
+    for rows.Next() {
+        var article Article
+        // 扫描每一行的结果并赋值到一个 article 对象中
+        err := rows.Scan(&article.ID, &article.Title, &article.Body)
+        checkError(err)
+        articles = append(articles, article)
+    }
+    // 检查遍历的时候是否发生错误
+    err = rows.Err()
+    checkError(err)
+
+    tmpl, err := template.ParseFiles("resources/views/articles/index.gohtml")
+    checkError(err)
+    tmpl.Execute(w, articles)
 }
 
 type ArticlesFormData struct {
@@ -317,6 +338,15 @@ func validateArticleFormData(title string, body string) map[string]string {
     }
 
     return errors
+}
+
+func (t Article) Link() string {
+    showUrl, err := router.Get("articles.show").URL("id", strconv.FormatInt(t.ID, 10))
+    if err != nil {
+        checkError(err)
+        return ""
+    }
+    return showUrl.String()
 }
 
 func foreaHtmlMiddlewaer (next http.Handler) http.Handler {
