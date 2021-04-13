@@ -2,16 +2,53 @@ package main
 
 import (
 	"fmt"
+	"html/template"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
-	"html/template"
+	"time"
 	"unicode/utf8"
 
+	"database/sql"
+
+	"github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 )
 
 var router = mux.NewRouter()
+var db *sql.DB
+func initDB() {
+    var err error
+    config := mysql.Config{
+        User : "root",
+        Passwd: "",
+        Addr: "127.0.0.1:3306",
+        Net: "tcp",
+        DBName: "goblog",
+        AllowNativePasswords: true,
+    }
+    //连接数据库
+    db, err = sql.Open("mysql", config.FormatDSN())
+    checkError(err)
+
+    db.SetMaxOpenConns(25) //最大连接数
+    db.SetMaxIdleConns(25) //最大空闲数
+    db.SetConnMaxLifetime(5 * time.Minute)//每个连接的过期时间
+
+    err = db.Ping()
+    checkError(err)
+}
+
+func checkError(err error) {
+    if err != nil {
+        log.Fatal(err)
+    }
+}
+
+func init() {
+    initDB()
+}
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
     fmt.Fprint(w, "<h1>Hello, 欢迎来到 goblog！</h1>")
