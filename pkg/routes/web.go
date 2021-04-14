@@ -8,9 +8,13 @@ import (
 )
 
 func RegisterWebRoutes(r *mux.Router) {
+	//静态页面
 	pc := new(controllers.PackageController)
-
 	r.NotFoundHandler = http.HandlerFunc(pc.NotFound)
 	r.HandleFunc("/", pc.Home).Methods("GET").Name("home")
 	r.HandleFunc("/about", pc.About).Methods("GET").Name("about")
+
+	//文章模块
+	ac := new(controllers.ArticlesController)
+	r.HandleFunc("/articles/{id:[0-9]+}", ac.Show).Methods("GET").Name("articles.show")
 }
