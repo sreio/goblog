@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"goblog/pkg/database"
 	"goblog/pkg/logger"
 	"goblog/pkg/route"
 	"goblog/pkg/types"
@@ -10,49 +11,15 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
-	"time"
 	"unicode/utf8"
 
 	"database/sql"
 
-	"github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 )
 
 var router *mux.Router
 var db *sql.DB
-
-func initDB() {
-    var err error
-    config := mysql.Config{
-        User : "root",
-        Passwd: "",
-        Addr: "127.0.0.1:3306",
-        Net: "tcp",
-        DBName: "goblog",
-        AllowNativePasswords: true,
-    }
-    //连接数据库
-    db, err = sql.Open("mysql", config.FormatDSN())
-    logger.LogError(err)
-
-    db.SetMaxOpenConns(25) //最大连接数
-    db.SetMaxIdleConns(25) //最大空闲数
-    db.SetConnMaxLifetime(5 * time.Minute)//每个连接的过期时间
-
-    err = db.Ping()
-    logger.LogError(err)
-}
-
-func createTables() {
-    createArticlesSQL := `CREATE TABLE IF NOT EXISTS articles(
-    id bigint(20) PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    title varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-    body longtext COLLATE utf8mb4_unicode_ci
-    );`
-    _, err := db.Exec(createArticlesSQL)
-    logger.LogError(err)
-}
 
 
 type Article struct{
@@ -424,10 +391,11 @@ func removeTrailingSlash (next http.Handler) http.Handler {
 }
 
 func main() {
-    initDB()
-    createTables()
     route.Initialize()
     router = route.Router
+
+    database.Initialize()
+    db = database.DB
 
     router.HandleFunc("/", homeHandler).Methods("GET").Name("home")
     router.HandleFunc("/about", aboutHandler).Methods("GET").Name("about")
