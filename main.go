@@ -62,6 +62,18 @@ func init() {
     createTables()
 }
 
+
+type Article struct{
+    Title, Body string
+    ID int64
+}
+
+type ArticlesFormData struct {
+    Title, Body string
+    URL *url.URL
+    Errors map[string]string
+}
+
 func homeHandler(w http.ResponseWriter, r *http.Request) {
     fmt.Fprint(w, "<h1>Hello, 欢迎来到 goblog！</h1>")
 }
@@ -76,10 +88,6 @@ func notFoundHandler(w http.ResponseWriter, r *http.Request) {
     fmt.Fprint(w, "<h1>请求页面未找到 :(</h1><p>如有疑惑，请联系我们。</p>")
 }
 
-type Article struct{
-    Title, Body string
-    ID int64
-}
 
 func articlesShowHandler(w http.ResponseWriter, r *http.Request) {
     id := getRouterParam("id", r)
@@ -145,11 +153,6 @@ func articlesIndexHandler(w http.ResponseWriter, r *http.Request) {
     tmpl.Execute(w, articles)
 }
 
-type ArticlesFormData struct {
-    Title, Body string
-    URL *url.URL
-    Errors map[string]string
-}
 
 func articlesStoreHandler(w http.ResponseWriter, r *http.Request) {
     title := r.PostFormValue("title")
