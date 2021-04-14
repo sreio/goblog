@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"goblog/pkg/route"
 	"html/template"
 	"log"
 	"net/http"
@@ -17,8 +18,9 @@ import (
 	"github.com/gorilla/mux"
 )
 
-var router = mux.NewRouter()
+var router *mux.Router
 var db *sql.DB
+
 func initDB() {
     var err error
     config := mysql.Config{
@@ -57,11 +59,6 @@ func checkError(err error) {
     }
 }
 
-func init() {
-    initDB()
-    createTables()
-}
-
 
 type Article struct{
     Title, Body string
@@ -90,7 +87,7 @@ func notFoundHandler(w http.ResponseWriter, r *http.Request) {
 
 
 func articlesShowHandler(w http.ResponseWriter, r *http.Request) {
-    id := getRouterParam("id", r)
+    id := route.GetRouterParam("id", r)
     article, err := getArtilceByID(id)
 
     if err != nil {
@@ -106,7 +103,7 @@ func articlesShowHandler(w http.ResponseWriter, r *http.Request) {
     } else {
         // tmpl, err := template.ParseFiles("resources/views/articles/show.gohtml")
         tmpl, err := template.New("show.gohtml").Funcs(template.FuncMap{
-            "RouteName2URL": RouteName2URL,
+            "RouteName2URL": route.RouteName2URL,
             "Int64ToString": Int64ToString,
         }).ParseFiles("resources/views/articles/show.gohtml")
         checkError(err)
@@ -114,15 +111,7 @@ func articlesShowHandler(w http.ResponseWriter, r *http.Request) {
     }
 }
 
-// RouteName2URL 通过路由名称来获取 URL
-func RouteName2URL(routerName string, pars ...string) string {
-    url, err := router.Get(routerName).URL(pars...)
-    if err != nil {
-        checkError(err)
-        return ""
-    }
-    return url.String()
-}
+
 
 func Int64ToString(num int64) string {
     return strconv.FormatInt(num, 10)
@@ -238,7 +227,7 @@ func articlesAddHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func articlesEditHandler(w http.ResponseWriter, r *http.Request) {
-    id := getRouterParam("id", r)
+    id := route.GetRouterParam("id", r)
     article, err := getArtilceByID(id)
 
     if err != nil {
@@ -266,7 +255,7 @@ func articlesEditHandler(w http.ResponseWriter, r *http.Request) {
 
 func articlesUpdateHandler(w http.ResponseWriter, r *http.Request) {
     // 1. 获取 URL 参数
-    id := getRouterParam("id", r)
+    id := route.GetRouterParam("id", r)
 
     // 2. 读取对应的文章数据
     _, err := getArtilceByID(id)
@@ -331,7 +320,7 @@ func articlesUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 func articlesDeleteHandler(w http.ResponseWriter, r *http.Request) {
     // 1. 获取 URL 参数
-    id := getRouterParam("id", r)
+    id := route.GetRouterParam("id", r)
 
     // 2. 读取对应的文章数据
     article, err := getArtilceByID(id)
@@ -388,10 +377,6 @@ func (t Article) Delete() (rowsAffected int64, err error) {
     return 0, nil
 }
 
-func getRouterParam(parameterName string, r *http.Request) string {
-    vars := mux.Vars(r)
-    return vars[parameterName]
-}
 
 func getArtilceByID(id string) (Article, error){
     article := Article{}
@@ -446,6 +431,11 @@ func removeTrailingSlash (next http.Handler) http.Handler {
 }
 
 func main() {
+    initDB()
+    createTables()
+    route.Initialize()
+    router = route.Router
+
     router.HandleFunc("/", homeHandler).Methods("GET").Name("home")
     router.HandleFunc("/about", aboutHandler).Methods("GET").Name("about")
 
