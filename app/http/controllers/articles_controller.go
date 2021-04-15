@@ -3,6 +3,7 @@ package controllers
 import (
 	"database/sql"
 	"fmt"
+	"goblog/app/models/article"
 	"goblog/pkg/logger"
 	"goblog/pkg/route"
 	"goblog/pkg/types"
@@ -14,7 +15,7 @@ type ArticlesController struct{}
 
 func (*ArticlesController) Show(w http.ResponseWriter,r *http.Request) {
 	id := route.GetRouterParam("id", r)
-    article, err := getArtilceByID(id)
+    article, err := article.Get(id)
 
     if err != nil {
         if err == sql.ErrNoRows {
