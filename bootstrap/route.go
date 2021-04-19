@@ -2,6 +2,7 @@ package bootstrap
 
 import (
 	"goblog/pkg/model"
+	"goblog/pkg/route"
 	"goblog/pkg/routes"
 	"time"
 
@@ -11,6 +12,7 @@ import (
 // SetupRoute 路由初始化
 func SetupRoute() *mux.Router {
 	router := mux.NewRouter()
+    route.SetRoute(router)
 	routes.RegisterWebRoutes(router)
 	return router
 }

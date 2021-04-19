@@ -32,31 +32,6 @@ type ArticlesFormData struct {
     Errors map[string]string
 }
 
-func articlesIndexHandler(w http.ResponseWriter, r *http.Request) {
-    // fmt.Fprint(w, "访问文章列表")
-    rows, err := db.Query("SELECT * from articles")
-    logger.LogError(err)
-    defer rows.Close()
-
-    var articles []Article
-
-    // 遍历数据
-    for rows.Next() {
-        var article Article
-        // 扫描每一行的结果并赋值到一个 article 对象中
-        err := rows.Scan(&article.ID, &article.Title, &article.Body)
-        logger.LogError(err)
-        articles = append(articles, article)
-    }
-    // 检查遍历的时候是否发生错误
-    err = rows.Err()
-    logger.LogError(err)
-
-    tmpl, err := template.ParseFiles("resources/views/articles/index.gohtml")
-    logger.LogError(err)
-    tmpl.Execute(w, articles)
-}
-
 
 func articlesStoreHandler(w http.ResponseWriter, r *http.Request) {
     title := r.PostFormValue("title")
@@ -320,15 +295,6 @@ func validateArticleFormData(title string, body string) map[string]string {
     return errors
 }
 
-func (t Article) Link() string {
-    showUrl, err := router.Get("articles.show").URL("id", strconv.FormatInt(t.ID, 10))
-    if err != nil {
-        logger.LogError(err)
-        return ""
-    }
-    return showUrl.String()
-}
-
 func foreaHtmlMiddlewaer (next http.Handler) http.Handler {
     return http.HandlerFunc(func (w http.ResponseWriter, r *http.Request)  {
         w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -358,8 +324,6 @@ func main() {
     router = bootstrap.SetupRoute()
 
     
-
-    router.HandleFunc("/articles", articlesIndexHandler).Methods("GET").Name("articles.index")
     router.HandleFunc("/articles", articlesStoreHandler).Methods("POST").Name("articles.store")
     router.HandleFunc("/articles/add", articlesAddHandler).Methods("GET").Name("articles.add")
     router.HandleFunc("/articles/{id:[0-9]+}/edit", articlesEditHandler).Methods("GET").Name("articles.edit")
