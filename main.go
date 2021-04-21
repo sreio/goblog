@@ -6,13 +6,10 @@ import (
 	"net/http"
 	"strings"
 
-	"database/sql"
-
 	"github.com/gorilla/mux"
 )
 
 var router *mux.Router
-var db *sql.DB
 
 func foreaHtmlMiddlewaer (next http.Handler) http.Handler {
     return http.HandlerFunc(func (w http.ResponseWriter, r *http.Request)  {
@@ -32,7 +29,6 @@ func removeTrailingSlash (next http.Handler) http.Handler {
 
 func main() {
     database.Initialize()
-    db = database.DB
     bootstrap.SetUpDB()
     router = bootstrap.SetupRoute()
     router.Use(foreaHtmlMiddlewaer)
