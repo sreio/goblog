@@ -30,12 +30,6 @@ func removeTrailingSlash (next http.Handler) http.Handler {
     })
 }
 
-// 获取请求参数
-func getRouterParam(parameterName string, r *http.Request) string {
-    vars := mux.Vars(r)
-    return vars[parameterName]
-}
-
 func main() {
     database.Initialize()
     db = database.DB
