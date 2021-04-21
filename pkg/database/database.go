@@ -20,7 +20,7 @@ func initDB() {
 	var err error
 	config := mysql.Config{
 		User:                 "root",
-		Passwd:               "weidada",
+		Passwd:               "",
 		Addr:                 "127.0.0.1:3306",
 		Net:                  "tcp",
 		DBName:               "goblog",
