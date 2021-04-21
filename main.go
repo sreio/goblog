@@ -1,6 +1,7 @@
 package main
 
 import (
+	middwares "goblog/app/http/middlewares"
 	"goblog/bootstrap"
 	"goblog/pkg/database"
 	"net/http"
@@ -31,7 +32,6 @@ func main() {
     database.Initialize()
     bootstrap.SetUpDB()
     router = bootstrap.SetupRoute()
-    router.Use(foreaHtmlMiddlewaer)
 
     // 通过命名路由获取 URL 示例
     // homeURL, _ := router.Get("home").URL()
@@ -39,5 +39,5 @@ func main() {
     // articleURL, _ := router.Get("articles.show").URL("id", "23")
     // fmt.Println("articleURL: ", articleURL)
 
-    http.ListenAndServe(":3000", removeTrailingSlash(router))
+    http.ListenAndServe(":3000", middwares.RemoveTrailingSlash(router))
 }
