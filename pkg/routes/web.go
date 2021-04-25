@@ -2,21 +2,24 @@ package routes
 
 import (
 	"goblog/app/http/controllers"
-	middwares "goblog/app/http/middlewares"
+	// middwares "goblog/app/http/middlewares"
 	"net/http"
 
 	"github.com/gorilla/mux"
 )
 
 func RegisterWebRoutes(r *mux.Router) {
-	// 中间件：强制内容类型为 HTML
-	r.Use(middwares.ForceHTML)
+	
 	//静态页面
 	pc := new(controllers.PackageController)
 	r.NotFoundHandler = http.HandlerFunc(pc.NotFound)
 	r.HandleFunc("/", pc.Home).Methods("GET").Name("home")
 	r.HandleFunc("/about", pc.About).Methods("GET").Name("about")
+	r.PathPrefix("/css/").Handler(http.FileServer(http.Dir("./public")))
+	r.PathPrefix("/js/").Handler(http.FileServer(http.Dir("./public")))
 
+	// 中间件：强制内容类型为 HTML
+	// r.Use(middwares.ForceHTML)
 	//文章模块
 	ac := new(controllers.ArticlesController)
 	r.HandleFunc("/articles/{id:[0-9]+}", ac.Show).Methods("GET").Name("articles.show")
