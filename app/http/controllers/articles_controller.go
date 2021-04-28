@@ -131,7 +131,7 @@ func (*ArticlesController) Update(w http.ResponseWriter, r *http.Request) {
 
 // Create 文章创建页面
 func (*ArticlesController) Create(w http.ResponseWriter, r *http.Request) {
-    view.Render(w, ArticlesFormData{}, "articles.edit", "articles._form_field")
+    view.Render(w, view.D{}, "articles.edit", "articles._form_field")
 }
 
 // Store 文章创建页面

@@ -1,12 +1,15 @@
 package bootstrap
 
 import (
+	"goblog/app/models/article"
+	"goblog/app/models/user"
 	"goblog/pkg/model"
 	"goblog/pkg/route"
 	"goblog/pkg/routes"
 	"time"
 
 	"github.com/gorilla/mux"
+	"gorm.io/gorm"
 )
 
 // SetupRoute 路由初始化
@@ -30,4 +33,16 @@ func SetUpDB() {
     sqlDB.SetMaxIdleConns(25)
     // 设置每个链接的过期时间
     sqlDB.SetConnMaxLifetime(5 * time.Minute)
+    
+    // 创建和维护数据表结构
+    migration(db)
+}
+
+func migration(db *gorm.DB) {
+
+    // 自动迁移
+    db.AutoMigrate(
+        &user.User{},
+        &article.Article{},
+    )
 }

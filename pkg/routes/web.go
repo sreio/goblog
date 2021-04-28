@@ -29,4 +29,9 @@ func RegisterWebRoutes(r *mux.Router) {
 	r.HandleFunc("/articles/create", ac.Create).Methods("GET").Name("articles.create")
     r.HandleFunc("/articles", ac.Store).Methods("POST").Name("articles.store")
 	r.HandleFunc("/articles/{id:[0-9]+}/delete", ac.Delete).Methods("POST").Name("articles.delete")
+
+	// 用户相关
+	auc := new(controllers.AuthController)
+	r.HandleFunc("/auth/register", auc.Register).Methods("GET").Name("auth.register")
+	r.HandleFunc("/auth/do-register", auc.DoRegister).Methods("POST").Name("auth.doregister")	
 }
