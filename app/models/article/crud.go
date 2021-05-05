@@ -9,22 +9,24 @@ import (
 
 
 
-func Get(idStr string) (Article, error){
-	var article Article
-	id := types.StringToInt(idStr)
-	err := model.DB.First(&article, id).Error
-	if err != nil {
-		return article, err
-	}
-	return article, nil
+// Get 通过 ID 获取文章
+func Get(idstr string) (Article, error) {
+    var article Article
+    id := types.StringToInt(idstr)
+    if err := model.DB.Preload("User").First(&article, id).Error; err != nil {
+        return article, err
+    }
+
+    return article, nil
 }
 
+// GetAll 获取全部文章
 func GetAll() ([]Article, error) {
-	var articles []Article
-	if err := model.DB.Find(&articles).Error; err != nil {
-		return articles, err
-	}
-	return articles, nil
+    var articles []Article
+    if err := model.DB.Debug().Preload("User").Find(&articles).Error; err != nil {
+        return articles, err
+    }
+    return articles, nil
 }
 
 // Create 创建文章，通过 article.ID 来判断是否创建成功
@@ -35,4 +37,13 @@ func (article *Article) Create() (err error) {
     }
 
     return nil
+}
+
+// GetByUserID 获取全部文章
+func GetByUserID(uid string) ([]Article, error) {
+    var articles []Article
+    if err := model.DB.Where("user_id = ?", uid).Preload("User").Find(&articles).Error; err != nil {
+        return articles, err
+    }
+    return articles, nil
 }

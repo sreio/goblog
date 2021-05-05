@@ -37,6 +37,11 @@ func RegisterWebRoutes(r *mux.Router) {
 	r.HandleFunc("/auth/login", middwares.Guest(auc.Login)).Methods("GET").Name("auth.login")
     r.HandleFunc("/auth/dologin", middwares.Guest(auc.DoLogin)).Methods("POST").Name("auth.dologin")
     r.HandleFunc("/auth/logout", middwares.Auth(auc.Logout)).Methods("POST").Name("auth.logout")
+
+	// 用户认证
+    uc := new(controllers.UserController)
+    r.HandleFunc("/users/{id:[0-9]+}", uc.Show).Methods("GET").Name("users.show")
+	
 	// --- 全局中间件 ---
     // 开始会话
     r.Use(middwares.StartSession)
